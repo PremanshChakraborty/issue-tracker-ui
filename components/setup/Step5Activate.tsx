@@ -115,10 +115,14 @@ export default function Step5Activate({
       const current = atob(fileData.content.replace(/\n/g, ""));
 
       // B. Inject cron schedule (add schedule trigger alongside existing workflow_dispatch)
-      const activated = current.replace(
-        "on:\n  workflow_dispatch:",
-        "on:\n  schedule:\n    - cron: '*/30 * * * *'\n  workflow_dispatch:"
-      );
+      // Matches workflow_dispatch regardless of comments before it, but checks if schedule already exists just in case
+      let activated = current;
+      if (!current.includes("schedule:")) {
+        activated = current.replace(
+          "workflow_dispatch:",
+          "schedule:\n    - cron: '*/30 * * * *'\n  workflow_dispatch:"
+        );
+      }
 
       // C. Commit the activated workflow
       const commitRes = await fetch(`${base}/contents/.github/workflows/tracker.yml`, {
