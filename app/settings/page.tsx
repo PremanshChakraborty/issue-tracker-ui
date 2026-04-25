@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS: GlobalSettings = {
   timezone: "UTC",
   filter_bots: true,
   min_comment_length: 0,
+  spike_comment_threshold: 5,
   default_mode: "inactivity_watch",
 };
 

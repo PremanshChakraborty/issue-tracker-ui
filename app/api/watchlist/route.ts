@@ -116,6 +116,7 @@ export async function POST(request: Request) {
     snooze_until: null,
     notes: "",
     auto_remove_on_close: defaults.auto_remove_on_close ?? false,
+    show_bot_comments: false,
     ...(body.overrides ?? {}),
   };
 
