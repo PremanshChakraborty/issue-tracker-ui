@@ -262,6 +262,27 @@ export default function SettingsForm({ initial, sha }: Props) {
             <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>chars</span>
           </div>
         </div>
+
+        {/* Spike comment threshold */}
+        <div className="toggle-wrapper">
+          <div>
+            <label htmlFor="spike-threshold" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Activity spike threshold</label>
+            <p className="field-hint">Fire a spike alert when this many new comments accumulate on a watched issue.</p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
+            <input
+              id="spike-threshold"
+              type="number"
+              min={2}
+              max={50}
+              step={1}
+              className="input-number"
+              value={values.spike_comment_threshold ?? 5}
+              onChange={(e) => patch("spike_comment_threshold", Number(e.target.value))}
+            />
+            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>comments</span>
+          </div>
+        </div>
       </Section>
 
       {/* ── Defaults ──────────────────────────────────────────────────────── */}

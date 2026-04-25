@@ -219,6 +219,16 @@ export default function IssueConfigForm({ values, onChange, mode }: Props) {
         )}
         <div className="toggle-wrapper">
           <div>
+            <p style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Show bot comments</p>
+            <p className="field-hint">Include bot activity for this issue even when bots are globally filtered</p>
+          </div>
+          <Toggle
+            value={values.show_bot_comments ?? false}
+            onChange={(v) => field("show_bot_comments", v)}
+          />
+        </div>
+        <div className="toggle-wrapper">
+          <div>
             <p style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Auto-remove on close</p>
             <p className="field-hint">Remove from watchlist when this issue closes</p>
           </div>

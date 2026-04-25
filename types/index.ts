@@ -44,6 +44,7 @@ export interface GlobalSettings {
   timezone: string;              // IANA tz, e.g. "Asia/Kolkata". Defaults to "UTC"
   filter_bots: boolean;
   min_comment_length: number;
+  spike_comment_threshold: number;
   default_mode: IssueMode;
 }
 
@@ -65,6 +66,7 @@ export interface IssueConfig {
   snooze_until: string | null;         // ISO timestamp or null
   notes: string;
   auto_remove_on_close: boolean;
+  show_bot_comments: boolean;
 }
 
 export interface Watchlist {
