@@ -97,14 +97,20 @@ export default function SettingsPage() {
         {/* Body */}
         <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
           {loading ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="glass" style={{ padding: "var(--space-6)" }}>
-                  <div className="skeleton" style={{ height: 16, width: 140, marginBottom: "var(--space-5)" }} />
-                  <div className="skeleton" style={{ height: 12, marginBottom: "var(--space-3)" }} />
-                  <div className="skeleton" style={{ height: 12, width: "70%" }} />
-                </div>
-              ))}
+            <div style={{ overflowY: "auto", height: "100%", padding: "var(--space-6) var(--space-8) var(--space-12)" }}>
+              <div className="settings-grid" style={{ maxWidth: 960, margin: "0 auto" }}>
+                {[3, 1, 2, 3].map((rows, i) => (
+                  <div key={i} className="glass" style={{ padding: "var(--space-6)" }}>
+                    <div className="skeleton" style={{ height: 14, width: 120, marginBottom: "var(--space-5)" }} />
+                    {Array.from({ length: rows }).map((_, r) => (
+                      <div key={r} style={{ marginBottom: r < rows - 1 ? "var(--space-5)" : 0 }}>
+                        <div className="skeleton" style={{ height: 12, width: "55%", marginBottom: "var(--space-2)" }} />
+                        <div className="skeleton" style={{ height: 10, width: "80%" }} />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           ) : error ? (
             <div style={{
