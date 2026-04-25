@@ -11,7 +11,7 @@ const KEYWORDS = [
   { kw: "ASSIGNEE",    desc: "Assigned user" },
 ] as const;
 
-const KEYWORD_SET = new Set(KEYWORDS.map((k) => k.kw));
+const KEYWORD_SET = new Set<string>(KEYWORDS.map((k) => k.kw));
 
 interface Props {
   value: string[];
