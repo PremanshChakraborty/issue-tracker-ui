@@ -126,6 +126,24 @@ export default function AppShell({ children, repoOwner, repoName, isActive = tru
 
       {/* Main content */}
       <main className="shell-main">{children}</main>
+
+      {/* Bottom nav (mobile only) */}
+      <nav className="bottom-nav" aria-label="Main navigation">
+        {navLinks.map(({ href, label, icon }) => {
+          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`bottom-nav-link${active ? " active" : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              {icon}
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

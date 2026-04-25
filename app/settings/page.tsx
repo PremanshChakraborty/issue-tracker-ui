@@ -81,10 +81,10 @@ export default function SettingsPage() {
 
   return (
     <AppShell repoOwner={status.repoOwner} repoName={status.repoName} isActive={status.telegramConnected}>
-      <div style={{ minHeight: "100dvh" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100dvh" }}>
 
         {/* Header */}
-        <div className="page-header" id="settings-header">
+        <div className="page-header" id="settings-header" style={{ flexShrink: 0 }}>
           <div>
             <h1 className="page-title">Settings</h1>
             <p className="page-subtitle">
@@ -95,7 +95,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Body */}
-        <div className="page-body" style={{ maxWidth: 680 }}>
+        <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
           {loading ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
               {[1, 2, 3, 4].map(i => (

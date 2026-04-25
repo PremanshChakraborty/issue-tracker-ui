@@ -107,7 +107,7 @@ export default function SettingsForm({ initial, sha }: Props) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
 
       {/* Unsaved changes banner */}
       {dirty && (
@@ -126,185 +126,186 @@ export default function SettingsForm({ initial, sha }: Props) {
         </div>
       )}
 
-      {/* ── Notification schedule ──────────────────────────────────────────── */}
-      <Section title="Notification Schedule" hint="Controls how often the tracker checks for updates.">
-        {/* Cron interval */}
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="cron-interval" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Cron interval</label>
-            <p className="field-hint">How often the tracker cron job runs and checks for new activity.</p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
-            <input
-              id="cron-interval"
-              type="number"
-              min={10}
-              max={1440}
-              step={10}
-              className="input-number"
-              value={values.cron_interval_minutes}
-              onChange={(e) => patch("cron_interval_minutes", Number(e.target.value))}
-            />
-            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", whiteSpace: "nowrap" }}>minutes</span>
-          </div>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "var(--space-6) var(--space-8) var(--space-12)" }}>
+      <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+
+      <div className="settings-grid">
+
+        {/* ── Left column: Schedule + Defaults ────────────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+
+          <Section title="Notification Schedule" hint="Controls how often the tracker checks for updates.">
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="cron-interval" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Cron interval - minutes</label>
+                <p className="field-hint">How often the tracker cron job runs and checks for new activity.</p>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
+                <input
+                  id="cron-interval"
+                  type="number"
+                  min={10}
+                  max={1440}
+                  step={10}
+                  className="input-number"
+                  value={values.cron_interval_minutes}
+                  onChange={(e) => patch("cron_interval_minutes", Number(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="digest-time" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Daily digest time</label>
+                <p className="field-hint">Time of day to send the daily digest Telegram message.</p>
+              </div>
+              <input
+                id="digest-time"
+                type="time"
+                className="input"
+                style={{ width: "auto", flexShrink: 0 }}
+                value={values.digest_time}
+                onChange={(e) => patch("digest_time", e.target.value)}
+              />
+            </div>
+
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="timezone" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Timezone</label>
+                <p className="field-hint">Used for quiet hours and digest time calculations.</p>
+              </div>
+              <select
+                id="timezone"
+                className="input"
+                style={{ width: "auto", flexShrink: 0 }}
+                value={values.timezone}
+                onChange={(e) => patch("timezone", e.target.value)}
+              >
+                {TIMEZONES.map(tz => (
+                  <option key={tz} value={tz}>{tz}</option>
+                ))}
+              </select>
+            </div>
+          </Section>
+
+          <Section title="Defaults" hint="Applied when adding a new issue without specifying a mode.">
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="default-mode" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Default mode for new issues</label>
+                <p className="field-hint">Fallback mode when no mode is explicitly chosen.</p>
+              </div>
+              <select
+                id="default-mode"
+                className="input"
+                style={{ width: "auto", flexShrink: 0 }}
+                value={values.default_mode}
+                onChange={(e) => patch("default_mode", e.target.value as IssueMode)}
+              >
+                <option value="awaiting_reply">awaiting_reply</option>
+                <option value="inactivity_watch">inactivity_watch</option>
+                <option value="wip_watch">wip_watch</option>
+              </select>
+            </div>
+          </Section>
+
         </div>
 
-        {/* Digest time */}
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="digest-time" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Daily digest time</label>
-            <p className="field-hint">Time of day to send the daily digest Telegram message.</p>
-          </div>
-          <input
-            id="digest-time"
-            type="time"
-            className="input"
-            style={{ width: "auto", flexShrink: 0 }}
-            value={values.digest_time}
-            onChange={(e) => patch("digest_time", e.target.value)}
-          />
-        </div>
+        {/* ── Right column: Quiet Hours + Filters ─────────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
 
-        {/* Timezone */}
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="timezone" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Timezone</label>
-            <p className="field-hint">Used for quiet hours and digest time calculations.</p>
-          </div>
-          <select
-            id="timezone"
-            className="input"
-            style={{ width: "auto", flexShrink: 0 }}
-            value={values.timezone}
-            onChange={(e) => patch("timezone", e.target.value)}
-          >
-            {TIMEZONES.map(tz => (
-              <option key={tz} value={tz}>{tz}</option>
-            ))}
-          </select>
-        </div>
-      </Section>
+          <Section title="Quiet Hours" hint="Suppress all non-critical notifications during this window.">
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="quiet-start" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Quiet hours start</label>
+                <p className="field-hint">Notifications suppressed after this time.</p>
+              </div>
+              <input
+                id="quiet-start"
+                type="time"
+                className="input"
+                style={{ width: "auto", flexShrink: 0 }}
+                value={values.quiet_hours_start}
+                onChange={(e) => patch("quiet_hours_start", e.target.value)}
+              />
+            </div>
 
-      {/* ── Quiet hours ───────────────────────────────────────────────────── */}
-      <Section title="Quiet Hours" hint="Suppress all non-critical notifications during this window.">
-        {/* Start */}
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="quiet-start" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Quiet hours start</label>
-            <p className="field-hint">Notifications suppressed after this time.</p>
-          </div>
-          <input
-            id="quiet-start"
-            type="time"
-            className="input"
-            style={{ width: "auto", flexShrink: 0 }}
-            value={values.quiet_hours_start}
-            onChange={(e) => patch("quiet_hours_start", e.target.value)}
-          />
-        </div>
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="quiet-end" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Quiet hours end</label>
+                <p className="field-hint">Notifications resume at this time.</p>
+              </div>
+              <input
+                id="quiet-end"
+                type="time"
+                className="input"
+                style={{ width: "auto", flexShrink: 0 }}
+                value={values.quiet_hours_end}
+                onChange={(e) => patch("quiet_hours_end", e.target.value)}
+              />
+            </div>
 
-        {/* End */}
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="quiet-end" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Quiet hours end</label>
-            <p className="field-hint">Notifications resume at this time.</p>
-          </div>
-          <input
-            id="quiet-end"
-            type="time"
-            className="input"
-            style={{ width: "auto", flexShrink: 0 }}
-            value={values.quiet_hours_end}
-            onChange={(e) => patch("quiet_hours_end", e.target.value)}
-          />
-        </div>
+            <div style={{
+              padding: "var(--space-3)",
+              borderRadius: "var(--radius-md)",
+              background: "var(--bg-primary)",
+              border: "1px solid var(--border-muted)",
+              fontSize: "var(--text-xs)",
+              color: "var(--text-muted)",
+            }}>
+              💡 Issues with <strong style={{ color: "var(--critical)" }}>critical priority</strong> + bypass enabled will still notify during quiet hours.
+            </div>
+          </Section>
 
-        <div style={{
-          padding: "var(--space-3)",
-          borderRadius: "var(--radius-md)",
-          background: "var(--bg-primary)",
-          border: "1px solid var(--border-muted)",
-          fontSize: "var(--text-xs)",
-          color: "var(--text-muted)",
-        }}>
-          💡 Issues with <strong style={{ color: "var(--critical)" }}>critical priority</strong> + bypass enabled will still notify during quiet hours.
-        </div>
-      </Section>
+          <Section title="Filters" hint="Reduce noise from low-signal activity.">
+            <div className="toggle-wrapper">
+              <div>
+                <label style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Filter bot accounts</label>
+                <p className="field-hint">Skip comments from GitHub bots (Dependabot, Actions bot, etc.).</p>
+              </div>
+              <Toggle id="filter-bots" value={values.filter_bots} onChange={(v) => patch("filter_bots", v)} />
+            </div>
 
-      {/* ── Filters ───────────────────────────────────────────────────────── */}
-      <Section title="Filters" hint="Reduce noise from low-signal activity.">
-        {/* Filter bots */}
-        <div className="toggle-wrapper">
-          <div>
-            <label style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Filter bot accounts</label>
-            <p className="field-hint">Skip comments from GitHub bots (Dependabot, Actions bot, etc.).</p>
-          </div>
-          <Toggle id="filter-bots" value={values.filter_bots} onChange={(v) => patch("filter_bots", v)} />
-        </div>
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="min-comment-length" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Minimum comment length</label>
+                <p className="field-hint">Skip comments shorter than N characters. Filters "+1" and emoji reactions.</p>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
+                <input
+                  id="min-comment-length"
+                  type="number"
+                  min={0}
+                  max={500}
+                  step={5}
+                  className="input-number"
+                  value={values.min_comment_length}
+                  onChange={(e) => patch("min_comment_length", Number(e.target.value))}
+                />
+              </div>
+            </div>
 
-        {/* Min comment length */}
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="min-comment-length" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Minimum comment length</label>
-            <p className="field-hint">Skip comments shorter than N characters. Filters "+1" and emoji reactions.</p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
-            <input
-              id="min-comment-length"
-              type="number"
-              min={0}
-              max={500}
-              step={5}
-              className="input-number"
-              value={values.min_comment_length}
-              onChange={(e) => patch("min_comment_length", Number(e.target.value))}
-            />
-            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>chars</span>
-          </div>
-        </div>
+            <div className="toggle-wrapper">
+              <div>
+                <label htmlFor="spike-threshold" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Activity spike threshold</label>
+                <p className="field-hint">Fire a spike alert when this many new comments accumulate on a watched issue.</p>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
+                <input
+                  id="spike-threshold"
+                  type="number"
+                  min={2}
+                  max={50}
+                  step={1}
+                  className="input-number"
+                  value={values.spike_comment_threshold ?? 5}
+                  onChange={(e) => patch("spike_comment_threshold", Number(e.target.value))}
+                />
+              </div>
+            </div>
+          </Section>
 
-        {/* Spike comment threshold */}
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="spike-threshold" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Activity spike threshold</label>
-            <p className="field-hint">Fire a spike alert when this many new comments accumulate on a watched issue.</p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexShrink: 0 }}>
-            <input
-              id="spike-threshold"
-              type="number"
-              min={2}
-              max={50}
-              step={1}
-              className="input-number"
-              value={values.spike_comment_threshold ?? 5}
-              onChange={(e) => patch("spike_comment_threshold", Number(e.target.value))}
-            />
-            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>comments</span>
-          </div>
         </div>
-      </Section>
-
-      {/* ── Defaults ──────────────────────────────────────────────────────── */}
-      <Section title="Defaults" hint="Applied when adding a new issue without specifying a mode.">
-        <div className="toggle-wrapper">
-          <div>
-            <label htmlFor="default-mode" style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>Default mode for new issues</label>
-            <p className="field-hint">Fallback mode when no mode is explicitly chosen.</p>
-          </div>
-          <select
-            id="default-mode"
-            className="input"
-            style={{ width: "auto", flexShrink: 0 }}
-            value={values.default_mode}
-            onChange={(e) => patch("default_mode", e.target.value as IssueMode)}
-          >
-            <option value="awaiting_reply">awaiting_reply</option>
-            <option value="inactivity_watch">inactivity_watch</option>
-            <option value="wip_watch">wip_watch</option>
-          </select>
-        </div>
-      </Section>
+      </div>
 
       {/* Save feedback */}
       {error && (
@@ -337,17 +338,7 @@ export default function SettingsForm({ initial, sha }: Props) {
         </div>
       )}
 
-      {/* Bottom save button (always visible) */}
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button
-          className="btn-primary"
-          onClick={save}
-          disabled={saving || !dirty}
-          id="settings-save"
-          style={{ opacity: dirty ? 1 : 0.4 }}
-        >
-          {saving ? <><div className="spinner spinner-sm" /> Saving…</> : "Save Settings"}
-        </button>
+      </div>
       </div>
     </div>
   );
