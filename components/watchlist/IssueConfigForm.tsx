@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import type { IssueConfig, IssueMode, EventType } from "@/types";
 import { ALL_EVENT_TYPES } from "@/types";
+import { WatchUsersInput } from "./WatchUsersInput";
 
 // ── Friendly event type labels ────────────────────────────────────────────────
 const EVENT_LABELS: Record<EventType, string> = {
@@ -167,10 +168,9 @@ export default function IssueConfigForm({ values, onChange, mode }: Props) {
       {/* Watch users */}
       <div className="field">
         <label className="field-label">Watch users</label>
-        <TagInput
+        <WatchUsersInput
           value={values.watch_users ?? []}
           onChange={(v) => field("watch_users", v)}
-          placeholder="Add GitHub username (Enter to add)…"
         />
         <p className="field-hint">Only notify when these users act. Leave empty to watch everyone.</p>
       </div>

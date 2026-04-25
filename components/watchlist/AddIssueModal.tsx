@@ -260,23 +260,28 @@ export default function AddIssueModal({ existingRefs, onClose, onAdded }: Props)
         {step === "config" && (
           <>
             <div className="modal-body">
-              {/* Summary */}
+              {/* Same green preview as step A */}
               {preview && (
                 <div style={{
-                  padding: "var(--space-3) var(--space-4)",
+                  padding: "var(--space-3)",
                   borderRadius: "var(--radius-md)",
-                  background: "var(--bg-primary)",
-                  border: "1px solid var(--border-muted)",
+                  background: "var(--success-bg)",
+                  border: "1px solid var(--success-border)",
                   display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-3)",
+                  flexDirection: "column",
+                  gap: 4,
                 }}>
-                  <code style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {preview.ref}
-                  </code>
-                  <span className="badge badge-accent" style={{ fontSize: "9px", textTransform: "none" }}>
-                    {selectedMode.replace(/_/g, " ")} defaults applied
-                  </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                    <span style={{ fontSize: "var(--text-xs)", color: "var(--success)" }}>✓</span>
+                    <code style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>{preview.ref}</code>
+                    {preview.state === "closed" && (
+                      <span className="badge badge-muted" style={{ fontSize: "9px" }}>Closed</span>
+                    )}
+                    <span className="badge badge-accent" style={{ fontSize: "9px", textTransform: "none", marginLeft: "auto" }}>
+                      {selectedMode.replace(/_/g, " ")} defaults
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--text-primary)" }}>{preview.title}</p>
                 </div>
               )}
 
