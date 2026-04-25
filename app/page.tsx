@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getInstallation, getTelegramStatus } from "@/lib/kv";
+import { getInstallation, getTelegramStatus, getActivated } from "@/lib/kv";
 
 /**
  * Smart root redirect.
@@ -21,6 +21,9 @@ export default async function Home() {
 
   const telegram = await getTelegramStatus(session.user.githubId);
   if (!telegram) redirect("/setup?step=telegram");
+
+  const activation = await getActivated(session.user.githubId);
+  if (!activation) redirect("/setup?step=activate");
 
   redirect("/dashboard");
 }

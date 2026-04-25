@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { getInstallation, getTelegramStatus } from "@/lib/kv";
+import { getInstallation, getTelegramStatus, getActivated } from "@/lib/kv";
 
 /**
  * Single source of truth for the frontend's onboarding state.
@@ -29,6 +29,8 @@ export async function GET() {
   const telegram = installation
     ? await getTelegramStatus(session.user.githubId)
     : null;
+  const activation =
+    installation && telegram ? await getActivated(session.user.githubId) : null;
 
   return Response.json({
     authenticated: true,
@@ -37,5 +39,6 @@ export async function GET() {
     repoOwner: installation?.repo_owner ?? null,
     repoName: installation?.repo_name ?? null,
     telegramConnected: !!telegram,
+    activated: !!activation,
   });
 }

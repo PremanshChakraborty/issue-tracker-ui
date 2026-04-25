@@ -48,3 +48,13 @@ export const setTelegramStatus = (id: number) =>
   getKv().set(`telegram:connected:${id}`, {
     connected_at: new Date().toISOString(),
   });
+
+export interface ActivationRecord {
+  activated_at: string;
+}
+
+export const getActivated = (id: number) =>
+  getKv().get<ActivationRecord>(`activated:${id}`);
+
+export const setActivated = (id: number) =>
+  getKv().set(`activated:${id}`, { activated_at: new Date().toISOString() });

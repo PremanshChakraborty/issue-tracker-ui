@@ -71,6 +71,45 @@ export default function Step2CreateRepo({ githubLogin, onComplete }: Props) {
         setVerifyState("error");
         return;
       }
+
+      // Template check — two signals
+      const templateOwner = process.env.NEXT_PUBLIC_TEMPLATE_OWNER ?? "";
+      const templateRepo = process.env.NEXT_PUBLIC_TEMPLATE_REPO ?? "";
+      const expectedTemplate = `${templateOwner}/${templateRepo}`;
+
+      // Signal 1: template_repository field (populated by GitHub when repo is created from a template)
+      let isFromTemplate =
+        !!templateOwner &&
+        !!templateRepo &&
+        data.template_repository?.full_name === expectedTemplate;
+
+      // Signal 2: fallback sentinel file check (handles cases where GitHub omits template_repository)
+      if (!isFromTemplate && templateOwner && templateRepo) {
+        try {
+          const sentinelRes = await fetch(
+            `https://api.github.com/repos/${owner}/${repo}/contents/.github/workflows/tracker.yml`
+          );
+          if (sentinelRes.status === 403) {
+            setErrorMsg(
+              "GitHub API rate limit reached. Please wait a moment and try again."
+            );
+            setVerifyState("error");
+            return;
+          }
+          isFromTemplate = sentinelRes.ok;
+        } catch {
+          isFromTemplate = false;
+        }
+      }
+
+      if (!isFromTemplate) {
+        setErrorMsg(
+          "This repository was not generated from the Issue Tracker template. Use the button above."
+        );
+        setVerifyState("error");
+        return;
+      }
+
       // Verified
       setVerified({ owner: data.owner.login, repo: data.name });
       setVerifyState("success");

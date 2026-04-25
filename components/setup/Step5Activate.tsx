@@ -136,6 +136,14 @@ export default function Step5Activate({
       });
       if (!commitRes.ok) throw new Error("Failed to enable cron schedule. Please try again.");
 
+      // Persist activation state — cron is now live, record it before dispatch
+      const activateRes = await fetch("/api/activate", { method: "POST" });
+      if (!activateRes.ok) {
+        throw new Error(
+          "Tracker is live but we could not record activation. Please refresh and try again."
+        );
+      }
+
       // D. Dispatch an immediate run to verify setup
       setActivateState("dispatching");
       const dispatchRes = await fetch(

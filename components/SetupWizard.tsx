@@ -97,6 +97,12 @@ export default function SetupWizard() {
           return;
         }
 
+        if (!data.activated) {
+          setStep(5);
+          setLoading(false);
+          return;
+        }
+
         // Fully configured — go to dashboard
         router.replace("/dashboard");
       } catch {
