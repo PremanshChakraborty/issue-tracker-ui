@@ -73,20 +73,23 @@ export default function AddIssueModal({ existingRefs, onClose, onAdded }: Props)
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // ── URL resolution ──────────────────────────────────────────────────────────
-  async function resolveUrl(raw: string) {
+  // Format-only check — computed on every render, no API call
+  const urlIsFormatValid = parseGitHubIssueUrl(url) !== null;
+
+  // ── URL resolution (GitHub API) ─────────────────────────────────────────────
+  async function resolveUrl(raw: string): Promise<boolean> {
     setUrlError(null);
     setPreview(null);
     const parsed = parseGitHubIssueUrl(raw);
     if (!parsed) {
       setUrlError("Must be a valid GitHub issue URL (github.com/owner/repo/issues/N)");
-      return;
+      return false;
     }
 
     const ref = `${parsed.owner}/${parsed.repo}#${parsed.number}`;
     if (existingRefs.includes(ref)) {
       setUrlError("You're already watching this issue.");
-      return;
+      return false;
     }
 
     setPreviewing(true);
@@ -96,15 +99,22 @@ export default function AddIssueModal({ existingRefs, onClose, onAdded }: Props)
       });
       if (!res.ok) {
         setUrlError(res.status === 404 ? "Issue not found — check the URL." : "Could not reach GitHub API.");
-        return;
+        return false;
       }
       const data = await res.json();
       setPreview({ title: data.title, state: data.state, ref });
+      return true;
     } catch {
       setUrlError("Could not reach GitHub API.");
+      return false;
     } finally {
       setPreviewing(false);
     }
+  }
+
+  async function handleConfigure() {
+    const ok = await resolveUrl(url);
+    if (ok) setStep("config");
   }
 
   function handleUrlChange(val: string) {
@@ -172,12 +182,11 @@ export default function AddIssueModal({ existingRefs, onClose, onAdded }: Props)
                     placeholder="https://github.com/owner/repo/issues/123"
                     value={url}
                     onChange={(e) => handleUrlChange(e.target.value)}
-                    onBlur={() => { if (url.trim()) resolveUrl(url); }}
-                    onKeyDown={(e) => { if (e.key === "Enter") resolveUrl(url); }}
+                    onKeyDown={(e) => { if (e.key === "Enter" && urlIsFormatValid && !previewing) handleConfigure(); }}
                     autoFocus
                   />
                   {previewing && (
-                    <div className="spinner spinner-sm" style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)" }} />
+                    <div className="spinner spinner-sm" style={{ position: "absolute", right: 12, top: "calc(50% - 7px)" }} />
                   )}
                 </div>
                 {urlError && (
@@ -237,11 +246,11 @@ export default function AddIssueModal({ existingRefs, onClose, onAdded }: Props)
               <button className="btn-ghost" onClick={onClose}>Cancel</button>
               <button
                 className="btn-primary"
-                disabled={!preview}
-                onClick={() => setStep("config")}
+                disabled={!urlIsFormatValid || previewing}
+                onClick={handleConfigure}
                 id="add-issue-next"
               >
-                Configure →
+                {previewing ? <><div className="spinner spinner-sm" />Checking…</> : "Configure →"}
               </button>
             </div>
           </>
