@@ -125,7 +125,7 @@ export async function POST(request: Request) {
   try {
     await writeWatchlist(
       octokit, record.repo_owner, record.repo_name, watchlist, sha,
-      `feat: watch ${issueRef} via Issue Tracker UI`
+      `feat: watch ${issueRef.replace('#', ' ')} via Issue Tracker UI`
     );
   } catch {
     return Response.json({ error: "write_failed" }, { status: 502 });
