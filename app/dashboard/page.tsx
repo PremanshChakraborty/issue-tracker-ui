@@ -47,11 +47,11 @@ function StatCard({ label, value, color, sub }: {
 }
 
 // ── Widget wrapper ────────────────────────────────────────────────────────────
-function Widget({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
+function Widget({ title, children, action, style }: { title: string; children: React.ReactNode; action?: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div
       className="glass"
-      style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-4)" }}
+      style={{ padding: "var(--space-5)", display: "flex", flexDirection: "column", gap: "var(--space-4)", ...style }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <h2 style={{ fontSize: "var(--text-sm)", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -233,14 +233,16 @@ export default function DashboardPage() {
                 </div>
               ) : data && (
                 <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)", alignItems: "stretch" }}>
-                  <div style={{ flex: 1 }}>
-                    <Widget title="Priority Breakdown">
+                  <div style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
+                    <Widget title="Priority Breakdown" style={{ flex: 1 }}>
                       <PriorityRingChart watchlist={data.watchlist} />
                     </Widget>
                   </div>
-                  <div style={{ flexShrink: 0 }}>
-                    <Widget title="7-Day Activity">
-                      <ActivitySparkline notifications={data.notifications} />
+                  <div style={{ flexShrink: 0, display: "flex", flexDirection: "column" }}>
+                    <Widget title="7-Day Activity" style={{ flex: 1 }}>
+                      <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+                        <ActivitySparkline notifications={data.notifications} />
+                      </div>
                     </Widget>
                   </div>
                 </div>
