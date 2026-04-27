@@ -225,21 +225,24 @@ export default function DashboardPage() {
           <div className="page-body">
             <div className="dashboard-grid">
 
-              {/* Row 1: Priority (1 col) + Inactivity Risk (2 cols) */}
-              {loading ? <WidgetSkeleton /> : data && (
-                <Widget title="Priority Breakdown">
-                  <PriorityRingChart watchlist={data.watchlist} />
-                </Widget>
-              )}
-
-              {/* Activity — 2 cols desktop, 1 col tablet */}
+              {/* Row 1: Priority (flex fill) + Activity (fit-content) */}
               {loading ? (
-                <div className="dash-sparkline"><WidgetSkeleton /></div>
+                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)" }}>
+                  <div style={{ flex: 1 }}><WidgetSkeleton /></div>
+                  <div style={{ flexShrink: 0, width: 340 }}><WidgetSkeleton /></div>
+                </div>
               ) : data && (
-                <div className="dash-sparkline">
-                  <Widget title="7-Day Activity">
-                    <ActivitySparkline notifications={data.notifications} />
-                  </Widget>
+                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)", alignItems: "stretch" }}>
+                  <div style={{ flex: 1 }}>
+                    <Widget title="Priority Breakdown">
+                      <PriorityRingChart watchlist={data.watchlist} />
+                    </Widget>
+                  </div>
+                  <div style={{ flexShrink: 0 }}>
+                    <Widget title="7-Day Activity">
+                      <ActivitySparkline notifications={data.notifications} />
+                    </Widget>
+                  </div>
                 </div>
               )}
 
@@ -250,7 +253,7 @@ export default function DashboardPage() {
                   <div style={{ flexShrink: 0, width: 260 }}><WidgetSkeleton /></div>
                 </div>
               ) : data && (
-                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)", alignItems: "stretch" }}>
+                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)", alignItems: "flex-start" }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <Widget
                       title="Inactivity Risk"
@@ -263,7 +266,7 @@ export default function DashboardPage() {
                       <InactivityRiskList watchlist={data.watchlist} state={data.state} />
                     </Widget>
                   </div>
-                  <div style={{ flexShrink: 0 }}>
+                  <div style={{ flexShrink: 0, width: 240 }}>
                     <Widget title="Quick Actions">
                       <QuickActionsWidget
                         repoOwner={status.repoOwner}

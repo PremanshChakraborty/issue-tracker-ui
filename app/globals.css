@@ -1278,7 +1278,7 @@ code {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: var(--space-5);
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Sparkline: 2-of-3 on desktop, 1-of-2 on tablet */
