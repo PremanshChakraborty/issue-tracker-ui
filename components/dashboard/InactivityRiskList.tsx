@@ -43,7 +43,7 @@ export default function InactivityRiskList({ watchlist, state }: Props) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", overflowY: "auto", maxHeight: 130 }}>
       {entries.map(({ ref, config, riskPct, daysRemaining }) => {
         const riskClass = riskPct >= 80 ? "risk-high" : riskPct >= 50 ? "risk-medium" : "risk-low";
         // Show repo#number, drop owner prefix

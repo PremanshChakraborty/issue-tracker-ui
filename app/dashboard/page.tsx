@@ -232,37 +232,38 @@ export default function DashboardPage() {
                 </Widget>
               )}
 
+              {/* Activity — 2 cols desktop, 1 col tablet */}
               {loading ? (
                 <div className="dash-sparkline"><WidgetSkeleton /></div>
               ) : data && (
                 <div className="dash-sparkline">
-                  <Widget
-                    title="Inactivity Risk"
-                    action={
-                      <a href="/watchlist" style={{ fontSize: "var(--text-xs)", color: "var(--text-link)" }}>
-                        View all →
-                      </a>
-                    }
-                  >
-                    <InactivityRiskList watchlist={data.watchlist} state={data.state} />
+                  <Widget title="7-Day Activity">
+                    <ActivitySparkline notifications={data.notifications} />
                   </Widget>
                 </div>
               )}
 
-              {/* Row 2: Activity (fit-content) + Quick Actions — flex wrapper spanning full */}
+              {/* Row 2: Inactivity Risk (flex fill) + Quick Actions (fit-content) */}
               {loading ? (
                 <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)" }}>
-                  <div style={{ flexShrink: 0, width: 340 }}><WidgetSkeleton /></div>
                   <div style={{ flex: 1 }}><WidgetSkeleton /></div>
+                  <div style={{ flexShrink: 0, width: 260 }}><WidgetSkeleton /></div>
                 </div>
               ) : data && (
-                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)", alignItems: "start" }}>
-                  <div style={{ flexShrink: 0 }}>
-                    <Widget title="7-Day Activity">
-                      <ActivitySparkline notifications={data.notifications} />
+                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)", alignItems: "stretch" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Widget
+                      title="Inactivity Risk"
+                      action={
+                        <a href="/watchlist" style={{ fontSize: "var(--text-xs)", color: "var(--text-link)" }}>
+                          View all →
+                        </a>
+                      }
+                    >
+                      <InactivityRiskList watchlist={data.watchlist} state={data.state} />
                     </Widget>
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flexShrink: 0 }}>
                     <Widget title="Quick Actions">
                       <QuickActionsWidget
                         repoOwner={status.repoOwner}
