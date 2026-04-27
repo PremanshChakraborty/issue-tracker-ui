@@ -148,7 +148,7 @@ export default function WatchlistCard({ issueRef, config, issueState, latestNoti
                 const assigned = assignees.length > 0;
                 return (
                   <div
-                    title={assigned ? `@${assignees[0]}` : "Unassigned"}
+                    title={assigned ? `Assignee: @${assignees[0]}` : "Unassigned"}
                     style={{
                       width: 26, height: 26, borderRadius: "50%",
                       background: "var(--bg-elevated)",
@@ -256,7 +256,7 @@ export default function WatchlistCard({ issueRef, config, issueState, latestNoti
             )}
             {/* Actions */}
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", justifyContent: "space-between", flexWrap: "wrap" }}>
-              <Link href={historyUrl} className="btn-ghost" style={{ fontSize: "var(--text-sm)" }}>
+              <Link href={historyUrl} className="btn-ghost" style={{ fontSize: "var(--text-xs)" }}>
                 View history →
               </Link>
 
