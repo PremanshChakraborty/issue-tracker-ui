@@ -7,6 +7,26 @@ import { relativeTime, daysSince, priorityBadgeClass, modeLabel, isSnoozeActive,
 import IssueConfigForm from "./IssueConfigForm";
 import SnoozeModal from "./SnoozeModal";
 
+function IconPerson() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function IconPersonOff() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="17" y1="11" x2="23" y2="17" />
+      <line x1="23" y1="11" x2="17" y2="17" />
+    </svg>
+  );
+}
+
 interface Props {
   issueRef: string;
   config: IssueConfig;
@@ -118,9 +138,30 @@ export default function WatchlistCard({ issueRef, config, issueState, latestNoti
         {!editMode ? (
           <>
             {/* Header row */}
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-3)", marginBottom: "var(--space-3)", flexWrap: "wrap" }}>
-              <span className={priorityBadgeClass(config.priority)}>{config.priority}</span>
-              <span className="badge badge-accent" style={{ textTransform: "none", fontSize: "var(--text-xs)" }}>{modeLabel(config.mode)}</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-3)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", flexWrap: "wrap" }}>
+                <span className={priorityBadgeClass(config.priority)}>{config.priority}</span>
+                <span className="badge badge-accent" style={{ textTransform: "none", fontSize: "var(--text-xs)" }}>{modeLabel(config.mode)}</span>
+              </div>
+              {(() => {
+                const assignees = issueState?.assignees ?? [];
+                const assigned = assignees.length > 0;
+                return (
+                  <div
+                    title={assigned ? `@${assignees[0]}` : "Unassigned"}
+                    style={{
+                      width: 26, height: 26, borderRadius: "50%",
+                      background: "var(--bg-elevated)",
+                      border: "1px solid var(--border-muted)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      flexShrink: 0,
+                      color: assigned ? "var(--text-primary)" : "var(--text-muted)",
+                    }}
+                  >
+                    {assigned ? <IconPerson /> : <IconPersonOff />}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Title + ref */}
@@ -150,11 +191,11 @@ export default function WatchlistCard({ issueRef, config, issueState, latestNoti
                 fontWeight: 600,
                 padding: "1px var(--space-2)",
                 borderRadius: "var(--radius-full)",
-                background: daysRemaining <= 0 ? "var(--critical-bg)" : daysRemaining <= 3 ? "var(--watching-bg)" : "var(--bg-elevated)",
-                color: daysRemaining <= 0 ? "var(--critical)" : daysRemaining <= 3 ? "var(--watching)" : "var(--text-muted)",
-                border: `1px solid ${daysRemaining <= 0 ? "var(--critical-border)" : daysRemaining <= 3 ? "var(--watching-border)" : "var(--border-muted)"}`,
+                background: daysRemaining <= 3 ? "var(--watching-bg)" : "var(--bg-elevated)",
+                color: daysRemaining <= 3 ? "var(--watching)" : "var(--text-muted)",
+                border: `1px solid ${daysRemaining <= 3 ? "var(--watching-border)" : "var(--border-muted)"}`,
               }}>
-                {daysRemaining <= 0 ? "⚠ Inactivity alert overdue" : `Inactivity alert in ${daysRemaining}d`}
+                {daysRemaining <= 0 ? "Alert triggered" : `Inactivity alert in ${daysRemaining}d`}
               </span>
             </div>
 
@@ -176,6 +217,7 @@ export default function WatchlistCard({ issueRef, config, issueState, latestNoti
                 marginBottom: "var(--space-3)",
               }}>
                 <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 2 }}>
+                  <span style={{ fontWeight: 600, marginRight: "var(--space-1)" }}>Latest</span>
                   {relativeTime(latestNotif.timestamp)} · {latestNotif.payload.summary}
                 </p>
                 {latestNotif.payload.detail && (
@@ -212,19 +254,9 @@ export default function WatchlistCard({ issueRef, config, issueState, latestNoti
                 </p>
               )
             )}
-            {!noteVal && !editingNote && (
-              <button
-                className="btn-ghost"
-                style={{ fontSize: "var(--text-xs)", marginBottom: "var(--space-3)", padding: "var(--space-1) var(--space-2)" }}
-                onClick={() => setEditingNote(true)}
-              >
-                + Add note
-              </button>
-            )}
-
             {/* Actions */}
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", justifyContent: "space-between", flexWrap: "wrap" }}>
-              <Link href={historyUrl} style={{ fontSize: "var(--text-xs)", color: "var(--text-link)" }}>
+              <Link href={historyUrl} className="btn-ghost" style={{ fontSize: "var(--text-sm)" }}>
                 View history →
               </Link>
 

@@ -139,6 +139,14 @@ export default function IssueHistoryPage() {
                 <div className="glass" style={{ padding: "var(--space-4)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--space-6)", flexWrap: "wrap" }}>
                     <div>
+                      <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 2 }}>Assignees</p>
+                      <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
+                        {issueState?.assignees?.length
+                          ? issueState.assignees.map(u => `@${u}`).join(", ")
+                          : <span style={{ color: "var(--text-muted)", fontStyle: "italic" }}>Unassigned</span>}
+                      </p>
+                    </div>
+                    <div>
                       <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: 2 }}>Watch users</p>
                       <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
                         {config.watch_users.length ? config.watch_users.map(u => `@${u}`).join(", ") : "Everyone"}

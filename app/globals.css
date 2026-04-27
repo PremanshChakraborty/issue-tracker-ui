@@ -954,7 +954,7 @@ code {
 
 .progress-fill.risk-low { background: var(--low); }
 .progress-fill.risk-medium { background: var(--watching); }
-.progress-fill.risk-high { background: var(--critical); }
+.progress-fill.risk-high { background: var(--watching); }
 
 /* ─── Timeline ───────────────────────────────────────────────────────────── */
 
@@ -1248,6 +1248,19 @@ code {
 
 @media (max-width: 640px) {
   .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.watchlist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .watchlist-grid {
     grid-template-columns: 1fr;
   }
 }

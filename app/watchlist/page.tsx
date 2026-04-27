@@ -215,8 +215,8 @@ export default function WatchlistPage() {
         {/* Content */}
         <div className="page-body">
           {loading ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-              {[1, 2, 3].map(i => (
+            <div className="watchlist-grid">
+              {[1, 2, 3, 4].map(i => (
                 <div key={i} className="glass" style={{ padding: "var(--space-5)", height: 140 }}>
                   <div className="skeleton" style={{ height: 12, width: 80, marginBottom: "var(--space-3)" }} />
                   <div className="skeleton" style={{ height: 18, width: "60%", marginBottom: "var(--space-2)" }} />
@@ -246,7 +246,7 @@ export default function WatchlistPage() {
               )}
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+            <div className="watchlist-grid">
               {entries.map(([ref, config]) => (
                 <WatchlistCard
                   key={ref}
