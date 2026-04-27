@@ -55,29 +55,18 @@ export default function DigestTimelineWidget({ notifications }: Props) {
 
           {/* Content */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: 2 }}>
-              <code style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--space-2)", marginBottom: 2 }}>
+              <code style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {notif.issue_ref}
               </code>
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                {notifTypeLabel(notif.type)}
+              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", flexShrink: 0 }}>
+                {relativeTime(notif.timestamp)}
               </span>
             </div>
-            <p style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--text-secondary)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}>
-              {notif.payload.summary}
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {notifTypeLabel(notif.type)} · {notif.payload.summary}
             </p>
           </div>
-
-          {/* Time */}
-          <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", flexShrink: 0, lineHeight: 1.4 }}>
-            {relativeTime(notif.timestamp)}
-          </span>
         </Link>
       ))}
 

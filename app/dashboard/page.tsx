@@ -10,7 +10,7 @@ import RepoSummaryWidget from "@/components/dashboard/RepoSummaryWidget";
 import DigestTimelineWidget from "@/components/dashboard/DigestTimelineWidget";
 import QuickActionsWidget from "@/components/dashboard/QuickActionsWidget";
 import AddIssueModal from "@/components/watchlist/AddIssueModal";
-import { relativeTime } from "@/lib/utils";
+import { relativeTime, daysSince } from "@/lib/utils";
 import type { Watchlist, TrackerState, Notification, GlobalSettings } from "@/types";
 
 interface Status {
@@ -27,6 +27,23 @@ interface RepoData {
   state: TrackerState;
   notifications: Notification[];
   settings: GlobalSettings;
+}
+
+// ── Stat card ─────────────────────────────────────────────────────────────────
+function StatCard({ label, value, color, sub }: {
+  label: string; value: string | number; color?: string; sub?: string;
+}) {
+  return (
+    <div className="glass" style={{ padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+      <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600 }}>
+        {label}
+      </p>
+      <p style={{ fontSize: "var(--text-2xl)", fontWeight: 800, letterSpacing: "-0.03em", color: color ?? "var(--text-primary)", lineHeight: 1 }}>
+        {value}
+      </p>
+      {sub && <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginTop: "var(--space-1)" }}>{sub}</p>}
+    </div>
+  );
 }
 
 // ── Widget wrapper ────────────────────────────────────────────────────────────
@@ -125,7 +142,15 @@ export default function DashboardPage() {
     );
   }
 
-  const issueCount = data ? Object.keys(data.watchlist.issues).length : 0;
+  const total    = data ? Object.keys(data.watchlist.issues).length : 0;
+  const critical = data ? Object.values(data.watchlist.issues).filter(c => c.priority === "critical").length : 0;
+  const overdue  = data
+    ? Object.entries(data.watchlist.issues).filter(([ref, config]) => {
+        const elapsed = daysSince(data.state.issues[ref]?.last_activity_at ?? null);
+        return elapsed >= config.inactivity_threshold_days;
+      }).length
+    : 0;
+  const lastRunText = data?.state.last_run ? relativeTime(data.state.last_run) : "Never";
 
   return (
     <AppShell repoOwner={status.repoOwner} repoName={status.repoName} isActive={status.telegramConnected}>
@@ -150,9 +175,9 @@ export default function DashboardPage() {
                 {greeting()}, {status.githubLogin} {new Date().getHours() < 12 ? "☀️" : new Date().getHours() < 17 ? "⛅" : "🌙"}
               </h1>
               <p className="page-subtitle">
-                {issueCount === 0
+                {total === 0
                   ? "No issues in watchlist yet"
-                  : `Monitoring ${issueCount} issue${issueCount !== 1 ? "s" : ""}`
+                  : `Monitoring ${total} issue${total !== 1 ? "s" : ""}`
                 }
                 {data?.state.last_run && (
                   <span style={{ color: "var(--text-muted)" }}>
@@ -204,37 +229,58 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Dashboard grid */}
+          {/* Dashboard body */}
           <div className="page-body">
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "var(--space-5)",
-            }}>
 
-              {/* Priority ring + sparkline — top row */}
+            {/* Stat strip */}
+            {loading ? (
+              <div className="stat-strip">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="glass" style={{ padding: "var(--space-4)", height: 80 }}>
+                    <div className="skeleton" style={{ height: 10, width: 60, marginBottom: "var(--space-3)" }} />
+                    <div className="skeleton" style={{ height: 28, width: 48 }} />
+                  </div>
+                ))}
+              </div>
+            ) : data && (
+              <div className="stat-strip">
+                <StatCard label="Tracked"  value={total} />
+                <StatCard label="Critical" value={critical} color={critical > 0 ? "var(--critical)" : undefined} />
+                <StatCard label="Overdue"  value={overdue}  color={overdue > 0 ? "var(--watching)" : undefined} />
+                <StatCard
+                  label="Last run"
+                  value={lastRunText}
+                  sub={data.state.last_run ? new Date(data.state.last_run).toLocaleString() : undefined}
+                />
+              </div>
+            )}
+
+            {/* Main grid */}
+            <div className="dashboard-grid">
+
+              {/* Priority ring — 1 col */}
+              {loading ? <WidgetSkeleton /> : data && (
+                <Widget title="Priority Breakdown">
+                  <PriorityRingChart watchlist={data.watchlist} />
+                </Widget>
+              )}
+
+              {/* Sparkline — 2 cols desktop, 1 col tablet */}
               {loading ? (
-                <>
-                  <WidgetSkeleton />
-                  <WidgetSkeleton />
-                </>
+                <div className="dash-sparkline"><WidgetSkeleton /></div>
               ) : data && (
-                <>
-                  <Widget title="Priority Breakdown">
-                    <PriorityRingChart watchlist={data.watchlist} />
-                  </Widget>
-
+                <div className="dash-sparkline">
                   <Widget title="7-Day Activity">
                     <ActivitySparkline notifications={data.notifications} />
                   </Widget>
-                </>
+                </div>
               )}
 
-              {/* Inactivity risk — full width */}
+              {/* Inactivity Risk — full width */}
               {loading ? (
-                <div style={{ gridColumn: "1 / -1" }}><WidgetSkeleton /></div>
+                <div className="dash-full"><WidgetSkeleton /></div>
               ) : data && (
-                <div style={{ gridColumn: "1 / -1" }}>
+                <div className="dash-full">
                   <Widget
                     title="Inactivity Risk"
                     action={
@@ -248,31 +294,39 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Repo summary */}
-              {loading ? <WidgetSkeleton /> : data && (
-                <Widget title="Repositories">
-                  <RepoSummaryWidget watchlist={data.watchlist} />
-                </Widget>
+              {/* Recent Activity — 2 cols desktop, full tablet */}
+              {loading ? (
+                <div className="dash-recent"><WidgetSkeleton /></div>
+              ) : data && (
+                <div className="dash-recent">
+                  <Widget title="Recent Activity">
+                    <DigestTimelineWidget notifications={data.notifications} />
+                  </Widget>
+                </div>
               )}
 
-              {/* Recent activity */}
-              {loading ? <WidgetSkeleton /> : data && (
-                <Widget title="Recent Activity">
-                  <DigestTimelineWidget notifications={data.notifications} />
-                </Widget>
+              {/* Right column: Repositories + Quick Actions stacked */}
+              {loading ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+                  <WidgetSkeleton />
+                  <WidgetSkeleton />
+                </div>
+              ) : data && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+                  <Widget title="Repositories">
+                    <RepoSummaryWidget watchlist={data.watchlist} />
+                  </Widget>
+                  <Widget title="Quick Actions">
+                    <QuickActionsWidget
+                      repoOwner={status.repoOwner}
+                      repoName={status.repoName}
+                      cronIntervalMinutes={data.settings.cron_interval_minutes}
+                      onAddIssue={() => setAddIssueOpen(true)}
+                    />
+                  </Widget>
+                </div>
               )}
 
-              {/* Quick actions */}
-              {loading ? <WidgetSkeleton /> : data && (
-                <Widget title="Quick Actions">
-                  <QuickActionsWidget
-                    repoOwner={status.repoOwner}
-                    repoName={status.repoName}
-                    cronIntervalMinutes={data.settings.cron_interval_minutes}
-                    onAddIssue={() => setAddIssueOpen(true)}
-                  />
-                </Widget>
-              )}
             </div>
           </div>
         </div>
