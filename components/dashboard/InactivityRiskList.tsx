@@ -1,7 +1,6 @@
 "use client";
 
 import type { IssueConfig, Watchlist, TrackerState } from "@/types";
-import { priorityColor } from "@/lib/utils";
 
 interface Props {
   watchlist: Watchlist;
@@ -46,15 +45,16 @@ export default function InactivityRiskList({ watchlist, state }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
       {entries.map(({ ref, config, riskPct, daysRemaining }) => {
-        const pColor = priorityColor(config.priority);
         const riskClass = riskPct >= 80 ? "risk-high" : riskPct >= 50 ? "risk-medium" : "risk-low";
+        // Show repo#number, drop owner prefix
+        const shortRef = ref.includes("/") ? ref.slice(ref.indexOf("/") + 1) : ref;
 
         return (
           <div key={ref} style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
             {/* Priority dot */}
             <span className={`status-dot ${config.priority}`} style={{ flexShrink: 0 }} />
 
-            {/* Issue ref */}
+            {/* Issue ref — short form */}
             <a
               href={`https://github.com/${config.repo}/issues/${config.issue_number}`}
               target="_blank"
@@ -63,16 +63,15 @@ export default function InactivityRiskList({ watchlist, state }: Props) {
                 fontSize: "var(--text-xs)",
                 color: "var(--text-secondary)",
                 textDecoration: "none",
-                minWidth: 0,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                flex: "0 0 auto",
-                maxWidth: 160,
+                flex: "0 1 auto",
+                maxWidth: 220,
               }}
               title={config.title}
             >
-              {ref}
+              {shortRef}
             </a>
 
             {/* Progress bar */}
@@ -83,12 +82,12 @@ export default function InactivityRiskList({ watchlist, state }: Props) {
               />
             </div>
 
-            {/* Alert pill */}
+            {/* Alert label */}
             <span
               style={{
                 fontSize: "var(--text-xs)",
                 fontWeight: 600,
-                color: daysRemaining <= 0 ? "var(--critical)" : daysRemaining <= 3 ? "var(--watching)" : "var(--text-muted)",
+                color: daysRemaining <= 0 ? "var(--watching)" : "var(--text-muted)",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
               }}

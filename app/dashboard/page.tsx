@@ -10,7 +10,7 @@ import RepoSummaryWidget from "@/components/dashboard/RepoSummaryWidget";
 import DigestTimelineWidget from "@/components/dashboard/DigestTimelineWidget";
 import QuickActionsWidget from "@/components/dashboard/QuickActionsWidget";
 import AddIssueModal from "@/components/watchlist/AddIssueModal";
-import { relativeTime, daysSince } from "@/lib/utils";
+import { relativeTime } from "@/lib/utils";
 import type { Watchlist, TrackerState, Notification, GlobalSettings } from "@/types";
 
 interface Status {
@@ -142,15 +142,7 @@ export default function DashboardPage() {
     );
   }
 
-  const total    = data ? Object.keys(data.watchlist.issues).length : 0;
-  const critical = data ? Object.values(data.watchlist.issues).filter(c => c.priority === "critical").length : 0;
-  const overdue  = data
-    ? Object.entries(data.watchlist.issues).filter(([ref, config]) => {
-        const elapsed = daysSince(data.state.issues[ref]?.last_activity_at ?? null);
-        return elapsed >= config.inactivity_threshold_days;
-      }).length
-    : 0;
-  const lastRunText = data?.state.last_run ? relativeTime(data.state.last_run) : "Never";
+  const total = data ? Object.keys(data.watchlist.issues).length : 0;
 
   return (
     <AppShell repoOwner={status.repoOwner} repoName={status.repoName} isActive={status.telegramConnected}>
@@ -231,56 +223,19 @@ export default function DashboardPage() {
 
           {/* Dashboard body */}
           <div className="page-body">
-
-            {/* Stat strip */}
-            {loading ? (
-              <div className="stat-strip">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="glass" style={{ padding: "var(--space-4)", height: 80 }}>
-                    <div className="skeleton" style={{ height: 10, width: 60, marginBottom: "var(--space-3)" }} />
-                    <div className="skeleton" style={{ height: 28, width: 48 }} />
-                  </div>
-                ))}
-              </div>
-            ) : data && (
-              <div className="stat-strip">
-                <StatCard label="Tracked"  value={total} />
-                <StatCard label="Critical" value={critical} color={critical > 0 ? "var(--critical)" : undefined} />
-                <StatCard label="Overdue"  value={overdue}  color={overdue > 0 ? "var(--watching)" : undefined} />
-                <StatCard
-                  label="Last run"
-                  value={lastRunText}
-                  sub={data.state.last_run ? new Date(data.state.last_run).toLocaleString() : undefined}
-                />
-              </div>
-            )}
-
-            {/* Main grid */}
             <div className="dashboard-grid">
 
-              {/* Priority ring — 1 col */}
+              {/* Row 1: Priority (1 col) + Inactivity Risk (2 cols) */}
               {loading ? <WidgetSkeleton /> : data && (
                 <Widget title="Priority Breakdown">
                   <PriorityRingChart watchlist={data.watchlist} />
                 </Widget>
               )}
 
-              {/* Sparkline — 2 cols desktop, 1 col tablet */}
               {loading ? (
                 <div className="dash-sparkline"><WidgetSkeleton /></div>
               ) : data && (
                 <div className="dash-sparkline">
-                  <Widget title="7-Day Activity">
-                    <ActivitySparkline notifications={data.notifications} />
-                  </Widget>
-                </div>
-              )}
-
-              {/* Inactivity Risk — full width */}
-              {loading ? (
-                <div className="dash-full"><WidgetSkeleton /></div>
-              ) : data && (
-                <div className="dash-full">
                   <Widget
                     title="Inactivity Risk"
                     action={
@@ -294,7 +249,33 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Recent Activity — 2 cols desktop, full tablet */}
+              {/* Row 2: Activity (fit-content) + Quick Actions — flex wrapper spanning full */}
+              {loading ? (
+                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)" }}>
+                  <div style={{ flexShrink: 0, width: 340 }}><WidgetSkeleton /></div>
+                  <div style={{ flex: 1 }}><WidgetSkeleton /></div>
+                </div>
+              ) : data && (
+                <div className="dash-full" style={{ display: "flex", gap: "var(--space-5)", alignItems: "start" }}>
+                  <div style={{ flexShrink: 0 }}>
+                    <Widget title="7-Day Activity">
+                      <ActivitySparkline notifications={data.notifications} />
+                    </Widget>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Widget title="Quick Actions">
+                      <QuickActionsWidget
+                        repoOwner={status.repoOwner}
+                        repoName={status.repoName}
+                        cronIntervalMinutes={data.settings.cron_interval_minutes}
+                        onAddIssue={() => setAddIssueOpen(true)}
+                      />
+                    </Widget>
+                  </div>
+                </div>
+              )}
+
+              {/* Row 3: Recent Activity (2 cols) + Repositories (1 col) */}
               {loading ? (
                 <div className="dash-recent"><WidgetSkeleton /></div>
               ) : data && (
@@ -305,26 +286,10 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Right column: Repositories + Quick Actions stacked */}
-              {loading ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-                  <WidgetSkeleton />
-                  <WidgetSkeleton />
-                </div>
-              ) : data && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-                  <Widget title="Repositories">
-                    <RepoSummaryWidget watchlist={data.watchlist} />
-                  </Widget>
-                  <Widget title="Quick Actions">
-                    <QuickActionsWidget
-                      repoOwner={status.repoOwner}
-                      repoName={status.repoName}
-                      cronIntervalMinutes={data.settings.cron_interval_minutes}
-                      onAddIssue={() => setAddIssueOpen(true)}
-                    />
-                  </Widget>
-                </div>
+              {loading ? <WidgetSkeleton /> : data && (
+                <Widget title="Repositories">
+                  <RepoSummaryWidget watchlist={data.watchlist} />
+                </Widget>
               )}
 
             </div>
